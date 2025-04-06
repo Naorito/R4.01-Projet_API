@@ -1,9 +1,18 @@
 <?php
 session_start(); // Démarrer la session
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header("Location: Connexion.php"); // Rediriger vers la page de connexion si non connecté
+    exit;
+}
+
+// Déconnexion
+if (isset($_GET['deconnexion'])) {
+    session_destroy(); // Détruire la session
+    header("Location: Connexion.php"); // Rediriger vers la page de connexion
     exit;
 }
 

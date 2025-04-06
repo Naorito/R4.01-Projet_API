@@ -15,11 +15,17 @@ if (isset($_GET['deconnexion'])) {
     exit;
 }
 
-require_once __DIR__ . '/librairie/BD.php'; // Inclure le fichier BD.php
 require_once __DIR__ . '/CSS/header.php'; // Inclure le header
 
-// Récupérer les statistiques
-$statistiques = getStatistiques();
+// Appeler l'API pour récupérer les statistiques
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, "http://localhost/R4.01-Projet_API/Projet_PHP_API/StatistiquesAPI.php");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+
+$apiResponse = json_decode($response, true);
+
 ?>
 
 <!DOCTYPE html>
@@ -33,50 +39,54 @@ $statistiques = getStatistiques();
 <body>
     <h1>Statistiques</h1>
 
-    <!-- Statistiques générales sur les matchs -->
-    <h2>Statistiques des matchs</h2>
-    <?php if ($statistiques['matchs']['total_matchs'] > 0): ?>
-        <p>Total des matchs : <?= $statistiques['matchs']['total_matchs'] ?></p>
-        <p>Matchs gagnés : <?= $statistiques['matchs']['matchs_gagnés'] ?> (<?= number_format($statistiques['matchs']['matchs_gagnés'] / $statistiques['matchs']['total_matchs'] * 100, 2) ?>%)</p>
-        <p>Matchs perdus : <?= $statistiques['matchs']['matchs_perdus'] ?> (<?= number_format($statistiques['matchs']['matchs_perdus'] / $statistiques['matchs']['total_matchs'] * 100, 2) ?>%)</p>
-        <p>Matchs nuls : <?= $statistiques['matchs']['matchs_nuls'] ?> (<?= number_format($statistiques['matchs']['matchs_nuls'] / $statistiques['matchs']['total_matchs'] * 100, 2) ?>%)</p>
-    <?php else: ?>
-        <p>Aucune donnée disponible pour les matchs.</p>
-    <?php endif; ?>
+    <?php if ($apiResponse['success']): ?>
+        <!-- Statistiques générales sur les matchs -->
+        <h2>Statistiques des matchs</h2>
+        <?php if ($apiResponse['data']['matchs']['total_matchs'] > 0): ?>
+            <p>Total des matchs : <?= $apiResponse['data']['matchs']['total_matchs'] ?></p>
+            <p>Matchs gagnés : <?= $apiResponse['data']['matchs']['matchs_gagnés'] ?> (<?= number_format($apiResponse['data']['matchs']['matchs_gagnés'] / $apiResponse['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
+            <p>Matchs perdus : <?= $apiResponse['data']['matchs']['matchs_perdus'] ?> (<?= number_format($apiResponse['data']['matchs']['matchs_perdus'] / $apiResponse['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
+            <p>Matchs nuls : <?= $apiResponse['data']['matchs']['matchs_nuls'] ?> (<?= number_format($apiResponse['data']['matchs']['matchs_nuls'] / $apiResponse['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
+        <?php else: ?>
+            <p>Aucune donnée disponible pour les matchs.</p>
+        <?php endif; ?>
 
-    <!-- Tableau des statistiques des joueurs -->
-    <h2>Statistiques des joueurs</h2>
-    <?php if (!empty($statistiques['joueurs'])): ?>
-        <table border="1">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Statut</th>
-                    <th>Poste Préféré</th>
-                    <th>Titulaire (sélections)</th>
-                    <th>Remplaçant (sélections)</th>
-                    <th>Moyenne évaluation</th>
-                    <th>% matchs gagnés</th>
-                    <th>Sélections consécutives</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($statistiques['joueurs'] as $joueur) : ?>
+        <!-- Tableau des statistiques des joueurs -->
+        <h2>Statistiques des joueurs</h2>
+        <?php if (!empty($apiResponse['data']['joueurs'])): ?>
+            <table border="1">
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom']) ?></td>
-                        <td><?= htmlspecialchars($joueur['statut']) ?></td>
-                        <td><?= htmlspecialchars($joueur['poste_prefere']) ?></td>
-                        <td><?= $joueur['titulaire_count'] ?></td>
-                        <td><?= $joueur['remplaçant_count'] ?></td>
-                        <td><?= $joueur['moyenne_evaluation'] !== null ? number_format($joueur['moyenne_evaluation'], 2) : 'Aucune donnée' ?></td>
-                        <td><?= $joueur['pourcentage_victoires'] !== null ? number_format($joueur['pourcentage_victoires'], 2) . "%" : 'Aucune donnée' ?></td>
-                        <td><?= $joueur['selections_consecutives'] !== null ? $joueur['selections_consecutives'] : 'Aucune donnée' ?></td>
+                        <th>Nom</th>
+                        <th>Statut</th>
+                        <th>Poste Préféré</th>
+                        <th>Titulaire (sélections)</th>
+                        <th>Remplaçant (sélections)</th>
+                        <th>Moyenne évaluation</th>
+                        <th>% matchs gagnés</th>
+                        <th>Sélections consécutives</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($apiResponse['data']['joueurs'] as $joueur) : ?>
+                        <tr>
+                            <td><?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom']) ?></td>
+                            <td><?= htmlspecialchars($joueur['statut']) ?></td>
+                            <td><?= htmlspecialchars($joueur['poste_prefere']) ?></td>
+                            <td><?= $joueur['titulaire_count'] ?></td>
+                            <td><?= $joueur['remplaçant_count'] ?></td>
+                            <td><?= $joueur['moyenne_evaluation'] !== null ? number_format($joueur['moyenne_evaluation'], 2) : 'Aucune donnée' ?></td>
+                            <td><?= $joueur['pourcentage_victoires'] !== null ? number_format($joueur['pourcentage_victoires'], 2) . "%" : 'Aucune donnée' ?></td>
+                            <td><?= $joueur['selections_consecutives'] !== null ? $joueur['selections_consecutives'] : 'Aucune donnée' ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>Aucune donnée disponible pour les joueurs.</p>
+        <?php endif; ?>
     <?php else: ?>
-        <p>Aucune donnée disponible pour les joueurs.</p>
+        <p>Erreur : <?= htmlspecialchars($apiResponse['message']) ?></p>
     <?php endif; ?>
 </body>
 </html>

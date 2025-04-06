@@ -2,6 +2,8 @@
 
 session_start(); // Démarrer la session
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header("Location: Connexion.php"); // Redirige vers la page de connexion si non connecté
