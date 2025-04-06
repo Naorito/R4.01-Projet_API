@@ -16,7 +16,7 @@ if (isset($_GET['deconnexion'])) {
 }
 
 // Récupération des données via l'API
-$url = 'http://localhost/R4.01-Projet/Projet_PHP_API/JoueurAPI.php';
+$url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/JoueurAPI.php';
 $joueurs = json_decode(file_get_contents($url), true);
 
 if (isset($_GET['supprimer'])) {

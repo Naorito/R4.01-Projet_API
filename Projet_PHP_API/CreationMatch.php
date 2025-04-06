@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'resultat_adverse' => $_POST['resultat_adverse']
     ];
 
-    $url = 'http://localhost/R4.01-Projet/Projet_PHP_API/MatchAPI.php';
+    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php';
     $options = [
         'http' => [
             'header'  => "Content-type: application/json\r\n",

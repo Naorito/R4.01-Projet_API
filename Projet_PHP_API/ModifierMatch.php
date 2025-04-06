@@ -14,7 +14,7 @@ $match = null;
 // Vérifie si un ID est passé en paramètre
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $url = 'http://localhost/R4.01-Projet/Projet_PHP_API/MatchAPI.php?id=' . $id;
+    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php?id=' . $id;
     $match = json_decode(file_get_contents($url), true);
 
     if (!$match) {
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'lieu' => $_POST['lieu']
     ];
 
-    $url = 'http://localhost/R4.01-Projet/Projet_PHP_API/MatchAPI.php';
+    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php';
     $options = [
         'http' => [
             'header'  => "Content-type: application/json\r\n",

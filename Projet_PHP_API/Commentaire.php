@@ -17,7 +17,7 @@ if (!isset($_GET['id'])) {
 }
 
 $id = (int) $_GET['id'];
-$url = 'http://localhost/R4.01-Projet/Projet_PHP_API/JoueurAPI.php?id=' . $id;
+$url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/JoueurAPI.php?id=' . $id;
 $joueur = json_decode(file_get_contents($url), true);
 
 if (!$joueur) {

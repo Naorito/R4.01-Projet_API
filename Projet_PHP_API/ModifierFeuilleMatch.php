@@ -7,6 +7,8 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+require_once __DIR__ . '/librairie/BD.php'; // Inclure le fichier BD.php
+
 // Récupérer l'ID du match depuis l'URL
 if (!isset($_GET['match_id']) || empty($_GET['match_id'])) {
     die("ID du match non spécifié.");
@@ -16,38 +18,62 @@ $match_id = (int)$_GET['match_id'];
 $message = "";
 
 // Récupérer la feuille de match via l'API
-$url = 'http://localhost/R4.01-Projet/Projet_PHP_API/FeuilleMatchAPI.php?match_id=' . $match_id;
-$joueurs_feuille = json_decode(file_get_contents($url), true);
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_URL, "http://localhost/Projet_PHP_API/FeuilleMatchAPI.php?match_id=$match_id");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+
+$joueurs_feuille = json_decode($response, true);
+
+if (isset($joueurs_feuille['success']) && !$joueurs_feuille['success']) {
+    die($joueurs_feuille['message']);
+}
+
+// Initialiser ou récupérer les joueurs stockés en session
+if (!isset($_SESSION['feuille_match'][$match_id])) {
+    $_SESSION['feuille_match'][$match_id] = [
+        'titulaire' => [],
+        'remplacant' => []
+    ];
+
+    foreach ($joueurs_feuille as $joueur) {
+        $joueur_id = $joueur['joueur_id'];
+        $statut = $joueur['statut'];
+        $poste_prefere = $joueur['poste_prefere'];
+        
+        $_SESSION['feuille_match'][$match_id][$statut][$joueur_id] = $poste_prefere;
+    }
+}
 
 // Récupérer les joueurs actifs
-$joueurs_actifs = json_decode(file_get_contents('http://localhost/R4.01-Projet/Projet_PHP_API/JoueurAPI.php?actifs=true'), true);
+$joueurs_actifs = getJoueursActifs(); // Assurez-vous que cette fonction est définie dans BD.php
 
 // Gestion des ajouts/suppressions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action']) && $_POST['action'] === 'ajouter') {
+    if (isset($_POST['action'])) {
+        $joueur_id = (int)($_POST['joueur_id'] ?? 0);
+        $statut = $_POST['statut'] ?? '';
+        $poste_prefere = $_POST['poste_prefere'] ?? '';
+
         $data = [
             'match_id' => $match_id,
-            'joueur_id' => $_POST['joueur_id'],
-            'statut' => $_POST['statut'],
-            'poste_prefere' => $_POST['poste_prefere']
+            'joueur_id' => $joueur_id,
+            'statut' => $statut,
+            'poste_prefere' => $poste_prefere,
+            'action' => $_POST['action']
         ];
 
-        $options = [
-            'http' => [
-                'header'  => "Content-type: application/json\r\n",
-                'method'  => 'POST',
-                'content' => json_encode($data),
-            ],
-        ];
-        $context  = stream_context_create($options);
-        $result = file_get_contents($url, false, $context);
-        $response = json_decode($result, true);
+        $ch = curl_init("http://localhost/Projet_PHP_API/FeuilleMatchAPI.php");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-        if ($response['success']) {
-            $message = "Joueur ajouté avec succès.";
-        } else {
-            $message = $response['message'];
-        }
+        $result = json_decode($response, true);
+        $message = $result['message'];
     }
 }
 
@@ -73,23 +99,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h2>Joueurs sélectionnés</h2>
     <h3>Titulaires</h3>
     <ul>
-        <?php foreach ($joueurs_feuille as $joueur): ?>
-            <?php if ($joueur['statut'] === 'titulaire'): ?>
-                <li>
-                    <?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom'] . ' - ' . $joueur['poste_prefere']) ?>
-                </li>
-            <?php endif; ?>
+        <?php foreach ($_SESSION['feuille_match'][$match_id]['titulaire'] as $joueur_id => $poste_prefere): ?>
+            <?php 
+                $joueur = array_filter($joueurs_actifs, fn($j) => $j['id'] === $joueur_id);
+                $joueur = reset($joueur);
+            ?>
+            <li>
+                <?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom'] . ' - ' . $poste_prefere) ?>
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="joueur_id" value="<?= $joueur_id ?>">
+                    <input type="hidden" name="statut" value="titulaire">
+                    <input type="hidden" name="action" value="supprimer">
+                    <button type="submit">Supprimer</button>
+                </form>
+            </li>
         <?php endforeach; ?>
     </ul>
 
     <h3>Remplaçants</h3>
     <ul>
-        <?php foreach ($joueurs_feuille as $joueur): ?>
-            <?php if ($joueur['statut'] === 'remplacant'): ?>
-                <li>
-                    <?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom'] . ' - ' . $joueur['poste_prefere']) ?>
-                </li>
-            <?php endif; ?>
+        <?php foreach ($_SESSION['feuille_match'][$match_id]['remplacant'] as $joueur_id => $poste_prefere): ?>
+            <?php 
+                $joueur = array_filter($joueurs_actifs, fn($j) => $j['id'] === $joueur_id);
+                $joueur = reset($joueur);
+            ?>
+            <li>
+                <?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom'] . ' - ' . $poste_prefere) ?>
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="joueur_id" value="<?= $joueur_id ?>">
+                    <input type="hidden" name="statut" value="remplacant">
+                    <input type="hidden" name="action" value="supprimer">
+                    <button type="submit">Supprimer</button>
+                </form>
+            </li>
         <?php endforeach; ?>
     </ul>
 
@@ -99,7 +141,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <select name="joueur_id" id="joueur_id" required>
             <option value="">-- Sélectionnez un joueur --</option>
             <?php foreach ($joueurs_actifs as $joueur): ?>
-                <option value="<?= $joueur['id'] ?>"><?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom']) ?></option>
+                <?php if (!isset($_SESSION['feuille_match'][$match_id]['titulaire'][$joueur['id']]) && 
+                          !isset($_SESSION['feuille_match'][$match_id]['remplacant'][$joueur['id']])): ?>
+                    <option value="<?= $joueur['id'] ?>"><?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom']) ?></option>
+                <?php endif; ?>
             <?php endforeach; ?>
         </select>
 
@@ -123,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <h2>Valider la sélection</h2>
     <form method="post">
-        <button type="submit" name="valider">Valider la sélection</button>
+        <button type="submit" name="action" value="valider">Valider la sélection</button>
     </form>
 
 </body>
