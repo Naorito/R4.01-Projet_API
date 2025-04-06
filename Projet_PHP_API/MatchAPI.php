@@ -40,16 +40,33 @@ switch ($method) {
     $data = json_decode(file_get_contents('php://input'), true);
 
     // Vérifier que toutes les clés nécessaires sont présentes
-    if (isset($data['id'], $data['date_match'], $data['heure_match'], $data['equipe_adverse'], $data['lieu'])) {
-        if (modifierMatch($data['id'], $data['date_match'], $data['heure_match'], $data['equipe_adverse'], $data['lieu'])) {
-            echo json_encode(['success' => true, 'message' => 'Match modifié avec succès.']);
+    if (isset($data['id'], $data['date_match'], $data['heure_match'], $data['equipe_adverse'], $data['lieu'], $data['resultat_equipe'], $data['resultat_adverse'])) {
+        if (modifierMatch($data['id'], $data['date_match'], $data['heure_match'], $data['equipe_adverse'], $data['lieu']) &&
+            modifierResultat($data['id'], $data['resultat_equipe'], $data['resultat_adverse'])) {
+            echo json_encode(['success' => true, 'message' => 'Match et résultats modifiés avec succès.']);
         } else {
-            echo json_encode(['success' => false, 'message' => "Erreur lors de la modification du match."]);
+            echo json_encode(['success' => false, 'message' => "Erreur lors de la modification du match ou des résultats."]);
         }
     } else {
         echo json_encode(['success' => false, 'message' => 'Données manquantes ou incorrectes.']);
     }
     break;
+
+    case 'PATCH':
+        // Lire les données JSON du corps de la requête
+        $data = json_decode(file_get_contents('php://input'), true);
+    
+        // Vérifier que l'ID et les résultats sont présents
+        if (isset($data['id'], $data['resultat_equipe'], $data['resultat_adverse'])) {
+            if (modifierResultat($data['id'], $data['resultat_equipe'], $data['resultat_adverse'])) {
+                echo json_encode(['success' => true, 'message' => 'Résultats modifiés avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => "Erreur lors de la modification des résultats."]);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Données manquantes ou incorrectes.']);
+        }
+        break;
 
     case 'DELETE':
         // Supprimer un match

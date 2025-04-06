@@ -31,7 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'date_match' => $_POST['date_match'],
         'heure_match' => $_POST['heure_match'],
         'equipe_adverse' => $_POST['equipe_adverse'],
-        'lieu' => $_POST['lieu']
+        'lieu' => $_POST['lieu'],
+        'resultat_equipe' => $_POST['resultat_equipe'] ?? $match['resultat_equipe'],
+        'resultat_adverse' => $_POST['resultat_adverse'] ?? $match['resultat_adverse']
     ];
 
     $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php';
@@ -86,6 +88,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <label for="lieu">Lieu :</label>
             <input type="text" id="lieu" name="lieu" value="<?= htmlspecialchars($match['lieu']) ?>" required><br>
+
+            <!-- Champs pour les résultats -->
+            <input type="hidden" name="resultat_equipe" value="<?= htmlspecialchars($match['resultat_equipe']) ?>">
+            <input type="hidden" name="resultat_adverse" value="<?= htmlspecialchars($match['resultat_adverse']) ?>">
 
             <button type="submit">Enregistrer</button>
         </form>

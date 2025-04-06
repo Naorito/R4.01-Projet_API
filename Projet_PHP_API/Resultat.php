@@ -8,18 +8,26 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once __DIR__ . '/librairie/BD.php';
-
 $message = '';
 $match = null;
 
 // Vérifie si un ID est passé en paramètre
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $match = getMatchParId($id); // Fonction pour récupérer un match par ID
 
-    if (!$match) {
-        $message = "Match introuvable.";
+    // Appeler l'API pour récupérer les informations du match
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php?id=$id");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $apiResponse = json_decode($response, true);
+
+    if (isset($apiResponse['success']) && !$apiResponse['success']) {
+        $message = $apiResponse['message'];
+    } else {
+        $match = $apiResponse;
     }
 } else {
     $message = "ID manquant.";
@@ -31,12 +39,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $resultat_equipe = ($_POST['resultat_equipe'] !== '') ? (int)$_POST['resultat_equipe'] : null;
     $resultat_adverse = ($_POST['resultat_adverse'] !== '') ? (int)$_POST['resultat_adverse'] : null;
 
-    // Modifier uniquement les résultats
-    if (modifierResultat($id, $resultat_equipe, $resultat_adverse)) {
+    // Préparer les données pour la requête PATCH
+    $data = [
+        'id' => $id,
+        'resultat_equipe' => $resultat_equipe,
+        'resultat_adverse' => $resultat_adverse
+    ];
+
+    // Envoyer la requête PATCH à l'API
+    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $apiResponse = json_decode($response, true);
+
+    if ($apiResponse['success']) {
         header("Location: ListeMatch.php");
         exit();
     } else {
-        $message = "Erreur lors de la modification du résultat.";
+        $message = "Erreur lors de la modification du résultat : " . $apiResponse['message'];
     }
 }
 
@@ -58,20 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <?php if ($match) : ?>
-        <form method="POST" action="Resultat.php">
+        <form method="POST" action="Resultat.php?id=<?= htmlspecialchars($match['id']) ?>">
             <input type="hidden" name="id" value="<?= htmlspecialchars($match['id']) ?>">
-
-            <label>Date :</label>
-            <p><?= htmlspecialchars($match['date_match']) ?></p><br>
-
-            <label>Heure :</label>
-            <p><?= htmlspecialchars($match['heure_match']) ?></p><br>
-
-            <label>Équipe adverse :</label>
-            <p><?= htmlspecialchars($match['equipe_adverse']) ?></p><br>
-
-            <label>Lieu :</label>
-            <p><?= htmlspecialchars($match['lieu']) ?></p><br>
 
             <label for="resultat_equipe">Résultat de l'équipe :</label>
             <input type="number" id="resultat_equipe" name="resultat_equipe" value="<?= htmlspecialchars($match['resultat_equipe']) ?>"><br>
