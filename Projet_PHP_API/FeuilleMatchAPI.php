@@ -24,32 +24,36 @@ switch ($method) {
                 }
             }
 
-            echo json_encode($joueurs);
+            echo json_encode(['success' => true, 'joueurs' => $joueurs]);
+        } elseif (isset($_GET['action']) && $_GET['action'] === 'getActifs') {
+            // Récupérer les joueurs actifs
+            $joueurs_actifs = getJoueursActifs();
+            echo json_encode(['success' => true, 'joueurs' => $joueurs_actifs]);
         } else {
             echo json_encode(['success' => false, 'message' => 'ID du match manquant.']);
         }
         break;
         
-        case 'PUT':
-            $data = json_decode(file_get_contents("php://input"), true);
-            if (isset($data['match_id'])) {
-                $match_id = (int)$data['match_id'];
-                // Supprimer tous les joueurs existants de la feuille de match
-                supprimerTousJoueursDeFeuilleMatch($match_id);
-    
-                // Ajouter les nouveaux joueurs
-                foreach ($data['joueurs'] as $joueur) {
-                    ajouterJoueurFeuilleMatch($match_id, $joueur['joueur_id'], $joueur['statut'], $joueur['poste_prefere']);
-                }
-    
-                echo json_encode(['success' => true, 'message' => 'Feuille de match mise à jour avec succès.']);
-            } else {
-                echo json_encode(['success' => false, 'message' => 'ID du match manquant.']);
+    case 'PUT':
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (isset($data['match_id'])) {
+            $match_id = (int)$data['match_id'];
+            // Supprimer tous les joueurs existants de la feuille de match
+            supprimerTousJoueursDeFeuilleMatch($match_id);
+
+            // Ajouter les nouveaux joueurs
+            foreach ($data['joueurs'] as $joueur) {
+                ajouterJoueurFeuilleMatch($match_id, $joueur['joueur_id'], $joueur['statut'], $joueur['poste_prefere']);
             }
-            break;
-    
-        default:
-            echo json_encode(['success' => false, 'message' => 'Méthode non supportée.']);
-            break;
+
+            echo json_encode(['success' => true, 'message' => 'Feuille de match mise à jour avec succès.']);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID du match manquant.']);
+        }
+        break;
+
+    default:
+        echo json_encode(['success' => false, 'message' => 'Méthode non supportée.']);
+        break;
 }
 ?>
