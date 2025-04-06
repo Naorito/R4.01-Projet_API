@@ -19,7 +19,7 @@ $message = "";
 
 // Récupérer la feuille de match via l'API
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "http://localhost/Projet_PHP_API/FeuilleMatchAPI.php?match_id=$match_id");
+curl_setopt($ch, CURLOPT_URL, "http://localhost/R4.01-Projet_API/Projet_PHP_API/FeuilleMatchAPI.php?match_id=$match_id");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 $response = curl_exec($ch);
 curl_close($ch);
@@ -60,29 +60,39 @@ if (!is_array($joueurs_actifs)) {
 
 // Gestion des ajouts/suppressions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
-        $joueur_id = (int)($_POST['joueur_id'] ?? 0);
-        $statut = $_POST['statut'] ?? '';
-        $poste_prefere = $_POST['poste_prefere'] ?? '';
+    if (isset($_POST['action']) && $_POST['action'] === 'valider') {
+        $joueurs = [];
+        foreach ($_SESSION['feuille_match'][$match_id] as $statut => $joueurs_statut) {
+            foreach ($joueurs_statut as $joueur_id => $poste_prefere) {
+                $joueurs[] = [
+                    'joueur_id' => $joueur_id,
+                    'statut' => $statut,
+                    'poste_prefere' => $poste_prefere
+                ];
+            }
+        }
 
-        $data = [
+        $data = json_encode([
             'match_id' => $match_id,
-            'joueur_id' => $joueur_id,
-            'statut' => $statut,
-            'poste_prefere' => $poste_prefere,
-            'action' => $_POST['action']
-        ];
+            'joueurs' => $joueurs
+        ]);
 
-        $ch = curl_init("http://localhost/Projet_PHP_API/FeuilleMatchAPI.php");
+        $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/FeuilleMatchAPI.php");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         $response = curl_exec($ch);
         curl_close($ch);
 
         $result = json_decode($response, true);
         $message = $result['message'];
+
+        // Redirection après validation réussie
+        if ($result['success']) {
+            header("Location: ListeMatch.php");
+            exit;
+        }
     }
 }
 

@@ -30,40 +30,26 @@ switch ($method) {
         }
         break;
         
-    case 'POST':
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (isset($data['action'])) {
-            $match_id = (int)($data['match_id'] ?? 0);
-            $joueur_id = (int)($data['joueur_id'] ?? 0);
-            $statut = $data['statut'] ?? '';
-            $poste_prefere = $data['poste_prefere'] ?? '';
+        case 'PUT':
+            $data = json_decode(file_get_contents("php://input"), true);
+            if (isset($data['match_id'])) {
+                $match_id = (int)$data['match_id'];
+                // Supprimer tous les joueurs existants de la feuille de match
+                supprimerTousJoueursDeFeuilleMatch($match_id);
     
-            if ($data['action'] === 'ajouter') {
-                // Ajouter un joueur à la feuille de match
-                ajouterJoueurFeuilleMatch($match_id, $joueur_id, $statut, $poste_prefere);
-                echo json_encode(['success' => true, 'message' => 'Joueur ajouté avec succès.']);
-            } elseif ($data['action'] === 'supprimer') {
-                // Supprimer un joueur de la feuille de match
-                supprimerJoueurDeFeuilleMatch($match_id, $joueur_id);
-                echo json_encode(['success' => true, 'message' => 'Joueur supprimé avec succès.']);
-            } elseif ($data['action'] === 'valider') {
-                // Valider la feuille de match
-                $total_joueurs = count(getJoueursDeFeuilleMatchComplet($match_id));
-                if ($total_joueurs !== 8) {
-                    echo json_encode(['success' => false, 'message' => 'Vous devez sélectionner exactement 5 titulaires et 3 remplaçants (8 joueurs au total).']);
-                } else {
-                    echo json_encode(['success' => true, 'message' => 'Sélection validée avec succès.']);
+                // Ajouter les nouveaux joueurs
+                foreach ($data['joueurs'] as $joueur) {
+                    ajouterJoueurFeuilleMatch($match_id, $joueur['joueur_id'], $joueur['statut'], $joueur['poste_prefere']);
                 }
-            } else {
-                echo json_encode(['success' => false, 'message' => 'Action non reconnue.']);
-            }
-        } else {
-            echo json_encode(['success' => false, 'message' => 'Données manquantes.']);
-        }
-        break;
     
-    default:
-    echo json_encode(['success' => false, 'message' => 'Méthode non supportée.']);
-        break;
+                echo json_encode(['success' => true, 'message' => 'Feuille de match mise à jour avec succès.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'ID du match manquant.']);
+            }
+            break;
+    
+        default:
+            echo json_encode(['success' => false, 'message' => 'Méthode non supportée.']);
+            break;
 }
 ?>
