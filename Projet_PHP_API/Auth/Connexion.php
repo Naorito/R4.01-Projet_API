@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/ConnexionAPI.php'; // Remplacez par le chemin correct vers votre API
+    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/Auth/ConnexionAPI.php'; // Remplacez par le chemin correct vers votre API
     $data = ['username' => $username, 'password' => $password];
 
     $options = [
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_id'] = $response['data']['user_id'];
         $_SESSION['username'] = $response['data']['username'];
         $_SESSION['token'] = $response['token']; // Stocker le jeton dans la session
-        header("Location: ListeJoueur.php");
+        header("Location: ../frontend/ListeJoueur.php");
         exit;
     } else {
         $erreur = $response['message'] ?? "Erreur inconnue.";
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link rel="stylesheet" href="./CSS/connexion.css">
+    <link rel="stylesheet" href="../frontend/CSS/connexion.css">
 </head>
 <body>
     <div class="form-container">

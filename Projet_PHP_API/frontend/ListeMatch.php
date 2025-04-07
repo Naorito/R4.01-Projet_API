@@ -54,7 +54,7 @@ if (isset($_GET['supprimer'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des matchs</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="CSS/styles.css">
 </head>
 <body>
     <h1>Liste des matchs</h1>

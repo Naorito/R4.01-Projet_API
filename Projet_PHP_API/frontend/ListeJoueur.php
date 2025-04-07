@@ -11,7 +11,7 @@ if (!isset($_SESSION['user_id'])) {
 // Déconnexion
 if (isset($_GET['deconnexion'])) {
     session_destroy(); // Détruire la session
-    header("Location: Connexion.php"); // Rediriger vers la page de connexion
+    header("Location: ../Auth/Connexion.php"); // Rediriger vers la page de connexion
     exit;
 }
 
@@ -52,7 +52,7 @@ if (isset($_GET['supprimer'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des joueurs</title>
-    <link rel="stylesheet" href="./css/ListeJoueur.css"> <!-- Lien vers le CSS -->
+    <link rel="stylesheet" href="./CSS/ListeJoueur.css"> <!-- Lien vers le CSS -->
 </head>
 <body>
     <!-- Bandeau de navigation -->

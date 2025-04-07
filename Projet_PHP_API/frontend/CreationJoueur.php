@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'statut' => $_POST['statut']
     ];
 
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backendJoueurAPI.php';
+    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php';
     $options = [
         'http' => [
             'header'  => "Content-type: application/json\r\n",

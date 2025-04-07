@@ -4,7 +4,7 @@ session_start(); // Démarre la session
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
-    header("Location: Connexion.php"); // Redirige vers la page de connexion si non connecté
+    header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
     exit;
 }
 
@@ -14,7 +14,7 @@ $match = null;
 // Vérifie si un ID est passé en paramètre
 if (isset($_GET['id'])) {
     $id = (int) $_GET['id'];
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/MatchAPI.php?id=' . $id;
+    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php?id=' . $id;
     $match = json_decode(file_get_contents($url), true);
 
     if (!$match) {

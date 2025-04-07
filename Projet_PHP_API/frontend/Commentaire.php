@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-require_once __DIR__ . '../backend/librairie/BD.php'; // Inclure la librairie pour la base de données
 require_once __DIR__ . '/CSS/header.php'; // Inclure le header
 
 // Vérifier si un ID est passé en paramètre
