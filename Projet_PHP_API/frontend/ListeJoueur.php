@@ -2,9 +2,9 @@
 
 session_start(); // Démarrer la session
 
-// Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
+// Vérifier si l'utilisateur est connecté et a un token
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
+    header("Location: ../Auth/Connexion.php");
     exit;
 }
 
@@ -15,34 +15,39 @@ if (isset($_GET['deconnexion'])) {
     exit;
 }
 
-// Récupération des données via l'API
-$url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php';
-$joueurs = json_decode(file_get_contents($url), true);
-
+// Traiter la suppression si demandée
 if (isset($_GET['supprimer'])) {
-    $id = (int) $_GET['supprimer']; // Sécuriser l'entrée
-    $deleteUrl = $url . '?id=' . $id;
-    $options = [
-        'http' => [
-            'method' => 'DELETE',
-        ],
-    ];
-    $context = stream_context_create($options);
-    $result = file_get_contents($deleteUrl, false, $context);
-    $response = json_decode($result, true);
+    $id = (int)$_GET['supprimer'];
+    
+    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=$id");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
 
-    if ($response['success']) {
-        header("Location: ListeJoueur.php"); // Rafraîchir la page après suppression
+    $result = json_decode($response, true);
+    if ($result && isset($result['success']) && $result['success']) {
+        header("Location: ListeJoueur.php");
         exit;
     } else {
-        $message = $response['message'];
-        echo "<script>
-                setTimeout(function() {
-                    window.location.href = 'ListeJoueur.php';
-                }, 3000);
-              </script>";
+        $message = $result['message'] ?? "Erreur lors de la suppression du joueur.";
     }
 }
+
+// Récupérer la liste des joueurs via l'API
+$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+// Ajouter le token dans le header
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $_SESSION['token']
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+
+$joueurs = json_decode($response, true);
 
 ?>
 

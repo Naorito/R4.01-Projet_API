@@ -3,7 +3,7 @@
 session_start(); // Démarre la session
 
 // Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
     exit;
 }
@@ -13,9 +13,18 @@ $match = null;
 
 // Vérifie si un ID est passé en paramètre
 if (isset($_GET['id'])) {
-    $id = (int) $_GET['id'];
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php?id=' . $id;
-    $match = json_decode(file_get_contents($url), true);
+    $id = $_GET['id'];
+    
+    // Récupérer les données du match
+    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php?id=$id");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $match = json_decode($response, true);
 
     if (!$match) {
         $message = "Match introuvable.";
@@ -37,15 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php';
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/json\r\n",
-            'method'  => 'PUT',
-            'content' => json_encode($data),
-        ],
-    ];
-    $context  = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
+    $result = curl_exec($ch);
+    curl_close($ch);
     $response = json_decode($result, true);
 
     if ($response['success']) {

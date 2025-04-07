@@ -2,7 +2,7 @@
 session_start();
 
 // Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php");
     exit;
 }
@@ -17,14 +17,16 @@ if (isset($_GET['deconnexion'])) {
 
 require_once __DIR__ . '/CSS/header.php'; // Inclure le header
 
-// Appeler l'API pour récupérer les statistiques
-$ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/StatistiquesAPI.php");
+// Récupérer les statistiques via l'API
+$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/StatistiquesAPI.php");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $_SESSION['token']
+]);
 $response = curl_exec($ch);
 curl_close($ch);
 
-$apiResponse = json_decode($response, true);
+$statistiques = json_decode($response, true);
 
 ?>
 
@@ -39,21 +41,21 @@ $apiResponse = json_decode($response, true);
 <body>
     <h1>Statistiques</h1>
 
-    <?php if ($apiResponse['success']): ?>
+    <?php if ($statistiques['success']): ?>
         <!-- Statistiques générales sur les matchs -->
         <h2>Statistiques des matchs</h2>
-        <?php if ($apiResponse['data']['matchs']['total_matchs'] > 0): ?>
-            <p>Total des matchs : <?= $apiResponse['data']['matchs']['total_matchs'] ?></p>
-            <p>Matchs gagnés : <?= $apiResponse['data']['matchs']['matchs_gagnés'] ?> (<?= number_format($apiResponse['data']['matchs']['matchs_gagnés'] / $apiResponse['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
-            <p>Matchs perdus : <?= $apiResponse['data']['matchs']['matchs_perdus'] ?> (<?= number_format($apiResponse['data']['matchs']['matchs_perdus'] / $apiResponse['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
-            <p>Matchs nuls : <?= $apiResponse['data']['matchs']['matchs_nuls'] ?> (<?= number_format($apiResponse['data']['matchs']['matchs_nuls'] / $apiResponse['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
+        <?php if ($statistiques['data']['matchs']['total_matchs'] > 0): ?>
+            <p>Total des matchs : <?= $statistiques['data']['matchs']['total_matchs'] ?></p>
+            <p>Matchs gagnés : <?= $statistiques['data']['matchs']['matchs_gagnés'] ?> (<?= number_format($statistiques['data']['matchs']['matchs_gagnés'] / $statistiques['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
+            <p>Matchs perdus : <?= $statistiques['data']['matchs']['matchs_perdus'] ?> (<?= number_format($statistiques['data']['matchs']['matchs_perdus'] / $statistiques['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
+            <p>Matchs nuls : <?= $statistiques['data']['matchs']['matchs_nuls'] ?> (<?= number_format($statistiques['data']['matchs']['matchs_nuls'] / $statistiques['data']['matchs']['total_matchs'] * 100, 2) ?>%)</p>
         <?php else: ?>
             <p>Aucune donnée disponible pour les matchs.</p>
         <?php endif; ?>
 
         <!-- Tableau des statistiques des joueurs -->
         <h2>Statistiques des joueurs</h2>
-        <?php if (!empty($apiResponse['data']['joueurs'])): ?>
+        <?php if (!empty($statistiques['data']['joueurs'])): ?>
             <table border="1">
                 <thead>
                     <tr>
@@ -68,7 +70,7 @@ $apiResponse = json_decode($response, true);
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($apiResponse['data']['joueurs'] as $joueur) : ?>
+                    <?php foreach ($statistiques['data']['joueurs'] as $joueur) : ?>
                         <tr>
                             <td><?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom']) ?></td>
                             <td><?= htmlspecialchars($joueur['statut']) ?></td>
@@ -86,7 +88,7 @@ $apiResponse = json_decode($response, true);
             <p>Aucune donnée disponible pour les joueurs.</p>
         <?php endif; ?>
     <?php else: ?>
-        <p>Erreur : <?= htmlspecialchars($apiResponse['message']) ?></p>
+        <p>Erreur : <?= htmlspecialchars($statistiques['message']) ?></p>
     <?php endif; ?>
 </body>
 </html>

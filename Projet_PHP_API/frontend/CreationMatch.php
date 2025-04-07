@@ -21,23 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'resultat_adverse' => $_POST['resultat_adverse']
     ];
 
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php';
-    $options = [
-        'http' => [
-            'header'  => "Content-type: application/json\r\n",
-            'method'  => 'POST',
-            'content' => json_encode($data),
-        ],
-    ];
-    $context  = stream_context_create($options);
-    $result = file_get_contents($url, false, $context);
-    $response = json_decode($result, true);
+    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
 
-    if ($response['success']) {
-        header("Location: ListeMatch.php?match_id=" . $response['match_id']);
-        exit();
+    $result = json_decode($response, true);
+    if ($result['success']) {
+        header("Location: ListeMatch.php");
+        exit;
     } else {
-        $message = $response['message'];
+        $message = $result['message'] ?? "Erreur lors de la création du match.";
     }
 }
 

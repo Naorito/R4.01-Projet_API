@@ -3,7 +3,7 @@
 session_start(); // Démarre la session
 
 // Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
     exit;
 }
@@ -19,6 +19,9 @@ if (isset($_GET['id'])) {
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, "http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php?id=$id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
     $response = curl_exec($ch);
     curl_close($ch);
 
@@ -35,23 +38,25 @@ if (isset($_GET['id'])) {
 
 // Traite le formulaire de modification du résultat
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = (int) $_POST['id'];
-    $resultat_equipe = ($_POST['resultat_equipe'] !== '') ? (int)$_POST['resultat_equipe'] : null;
-    $resultat_adverse = ($_POST['resultat_adverse'] !== '') ? (int)$_POST['resultat_adverse'] : null;
-
-    // Préparer les données pour la requête PATCH
     $data = [
-        'id' => $id,
-        'resultat_equipe' => $resultat_equipe,
-        'resultat_adverse' => $resultat_adverse
+        'id' => (int) $_POST['id'],
+        'date_match' => $_POST['date_match'],
+        'heure_match' => $_POST['heure_match'],
+        'equipe_adverse' => $_POST['equipe_adverse'],
+        'lieu' => $_POST['lieu'],
+        'resultat_equipe' => $_POST['resultat_equipe'] ?? $match['resultat_equipe'],
+        'resultat_adverse' => $_POST['resultat_adverse'] ?? $match['resultat_adverse']
     ];
 
-    // Envoyer la requête PATCH à l'API
+    // Envoyer la requête PUT à l'API
     $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
     $response = curl_exec($ch);
     curl_close($ch);
 
@@ -85,6 +90,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php if ($match) : ?>
         <form method="POST" action="Resultat.php?id=<?= htmlspecialchars($match['id']) ?>">
             <input type="hidden" name="id" value="<?= htmlspecialchars($match['id']) ?>">
+
+            <input type="hidden" name="date_match" value="<?= htmlspecialchars($match['date_match'] ?? '') ?>">
+            <input type="hidden" name="heure_match" value="<?= htmlspecialchars($match['heure_match'] ?? '') ?>">
+            <input type="hidden" name="equipe_adverse" value="<?= htmlspecialchars($match['equipe_adverse'] ?? '') ?>">
+            <input type="hidden" name="lieu" value="<?= htmlspecialchars($match['lieu'] ?? '') ?>">
 
             <label for="resultat_equipe">Résultat de l'équipe :</label>
             <input type="number" id="resultat_equipe" name="resultat_equipe" value="<?= htmlspecialchars($match['resultat_equipe']) ?>"><br>

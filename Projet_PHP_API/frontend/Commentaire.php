@@ -2,7 +2,7 @@
 session_start(); // Démarrer la session
 
 // Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
     exit;
 }
@@ -11,16 +11,51 @@ require_once __DIR__ . '/CSS/header.php'; // Inclure le header
 
 // Vérifier si un ID est passé en paramètre
 if (!isset($_GET['id'])) {
-    header("Location: ListeJoueur.php"); // Redirige si l'ID n'est pas fourni
-    exit;
+    die("ID du joueur non spécifié");
 }
 
-$id = (int) $_GET['id'];
-$url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=' . $id;
-$joueur = json_decode(file_get_contents($url), true);
+$joueur_id = (int)$_GET['id'];
 
-if (!$joueur) {
-    $message = "Joueur introuvable.";
+// Récupérer les informations du joueur
+$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=$joueur_id");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $_SESSION['token']
+]);
+$response = curl_exec($ch);
+curl_close($ch);
+
+$joueur = json_decode($response, true);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'id' => $joueur_id,
+        'nom' => $joueur['nom'],
+        'prenom' => $joueur['prenom'],
+        'numero_licence' => $joueur['numero_licence'],
+        'date_naissance' => $joueur['date_naissance'],
+        'taille' => $joueur['taille'],
+        'poids' => $joueur['poids'],
+        'statut' => $joueur['statut'],
+        'commentaires' => $_POST['commentaires']
+    ];
+
+    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php");
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+    curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
+    $response = curl_exec($ch);
+    curl_close($ch);
+
+    $result = json_decode($response, true);
+    if ($result['success']) {
+        header("Location: ListeJoueur.php");
+        exit;
+    }
 }
 ?>
 

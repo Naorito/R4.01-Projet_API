@@ -4,8 +4,8 @@ session_start(); // Démarrer la session
 require_once __DIR__ . '/CSS/header.php'; // Inclure le header
 
 // Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
-    header("Location: Connexion.php"); // Rediriger vers la page de connexion si non connecté
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
+    header("Location: ../Auth/Connexion.php"); // Rediriger vers la page de connexion si non connecté
     exit;
 }
 
@@ -27,6 +27,9 @@ $message = "";
 // Récupérer les joueurs actifs via l'API
 $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?action=getActifs");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $_SESSION['token']
+]);
 $response = curl_exec($ch);
 curl_close($ch);
 
@@ -40,6 +43,9 @@ if (!isset($joueurs_actifs['success']) || !$joueurs_actifs['success']) {
 // Récupérer les joueurs de la feuille de match via l'API
 $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?match_id=$match_id");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $_SESSION['token']
+]);
 $response = curl_exec($ch);
 curl_close($ch);
 
@@ -128,7 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
             curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $_SESSION['token']
+            ]);
             $response = curl_exec($ch);
             curl_close($ch);
 

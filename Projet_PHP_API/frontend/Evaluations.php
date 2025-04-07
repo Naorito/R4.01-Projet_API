@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php");
     exit;
 }
@@ -16,6 +16,9 @@ $message = "";
 // Récupérer les données via l'API FeuilleMatch
 $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?match_id=$match_id");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Authorization: Bearer ' . $_SESSION['token']
+]);
 $response = curl_exec($ch);
 
 // Vérifier si la requête cURL a réussi
@@ -67,7 +70,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($ch, CURLOPT_POSTFIELDS, $data_to_send);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: application/json',
+        'Authorization: Bearer ' . $_SESSION['token']
+    ]);
     $response = curl_exec($ch);
     
     if ($response === false) {
@@ -91,7 +97,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Évaluations - Feuille de Match</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="CSS/styles.css">
 </head>
 <body>
     <h1>Évaluations des joueurs</h1>
@@ -141,6 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </ul>
 
             <button type="submit">Enregistrer les évaluations</button>
+            <a href="ListeMatch.php" class="button">Retour à la liste</a>
         </form>
     <?php endif; ?>
 </body>
