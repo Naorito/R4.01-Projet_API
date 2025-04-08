@@ -17,7 +17,7 @@ if (!isset($_GET['id'])) {
 $joueur_id = (int)$_GET['id'];
 
 // Récupérer les informations du joueur
-$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=$joueur_id");
+$ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=$joueur_id");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $_SESSION['token']
@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'commentaires' => $_POST['commentaires']
     ];
 
-    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php");
+    $ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
     curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));

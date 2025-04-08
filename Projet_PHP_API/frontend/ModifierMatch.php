@@ -16,7 +16,7 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
     
     // Récupérer les données du match
-    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php?id=$id");
+    $ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php?id=$id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Authorization: Bearer ' . $_SESSION['token']
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'resultat_adverse' => $_POST['resultat_adverse'] ?? $match['resultat_adverse']
     ];
 
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php';
+    $url = 'http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/MatchAPI.php';
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');

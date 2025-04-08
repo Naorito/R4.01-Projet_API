@@ -18,7 +18,7 @@ if (isset($_GET['deconnexion'])) {
 require_once __DIR__ . '/CSS/header.php'; // Inclure le header
 
 // Récupérer les statistiques via l'API
-$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/StatistiquesAPI.php");
+$ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/StatistiquesAPI.php");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $_SESSION['token']

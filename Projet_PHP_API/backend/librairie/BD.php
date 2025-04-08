@@ -1,9 +1,9 @@
 <?php
 // Configuration pour la connexion à la base de données
-const DB_HOST = 'localhost';
-const DB_NAME = 'Gestion-Equipe';
-const DB_USER = 'root';
-const DB_PASSWORD = '';
+const DB_HOST = 'mysql-naorito.alwaysdata.net';
+const DB_NAME = 'naorito_r401api';
+const DB_USER = 'naorito';
+const DB_PASSWORD = 'Artchers47';
 
 /**
  * Connexion à la base de données via PDO.

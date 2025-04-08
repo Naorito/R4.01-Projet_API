@@ -25,7 +25,7 @@ $match_id = (int)$_GET['match_id'];
 $message = "";
 
 // Récupérer les joueurs actifs via l'API
-$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?action=getActifs");
+$ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?action=getActifs");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $_SESSION['token']
@@ -41,7 +41,7 @@ if (!isset($joueurs_actifs['success']) || !$joueurs_actifs['success']) {
 }
 
 // Récupérer les joueurs de la feuille de match via l'API
-$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?match_id=$match_id");
+$ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/FeuilleMatchAPI.php?match_id=$match_id");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Authorization: Bearer ' . $_SESSION['token']

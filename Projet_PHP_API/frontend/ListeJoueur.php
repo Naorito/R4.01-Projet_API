@@ -19,7 +19,7 @@ if (isset($_GET['deconnexion'])) {
 if (isset($_GET['supprimer'])) {
     $id = (int)$_GET['supprimer'];
     
-    $ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=$id");
+    $ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php?id=$id");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -38,7 +38,7 @@ if (isset($_GET['supprimer'])) {
 }
 
 // Récupérer la liste des joueurs via l'API
-$ch = curl_init("http://localhost/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php");
+$ch = curl_init("http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/backend/JoueurAPI.php");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 // Ajouter le token dans le header
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
