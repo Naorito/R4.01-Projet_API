@@ -1,8 +1,17 @@
 <?php
 session_start();
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php");
+    exit;
+}
+
+// Déconnexion
+if (isset($_GET['deconnexion'])) {
+    session_destroy(); // Détruire la session
+    header("Location: ../Auth/Connexion.php"); // Rediriger vers la page de connexion
     exit;
 }
 
@@ -97,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Évaluations - Feuille de Match</title>
-    <link rel="stylesheet" href="CSS/styles.css">
+    <link rel="stylesheet" href="CSS/Styles.css">
 </head>
 <body>
     <h1>Évaluations des joueurs</h1>
@@ -116,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <ul>
                 <?php foreach ($joueurs as $joueur): ?>
                     <?php if ($joueur['statut'] === 'titulaire'): ?>
-                        <li>
+                        <li class="joueur-evaluation">
                             <?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom'] . ' - ' . $joueur['poste_prefere']) ?>
                             <label for="evaluation_<?= $joueur['joueur_id'] ?>">Évaluation (1-5):</label>
                             <select name="evaluations[<?= $joueur['joueur_id'] ?>]" id="evaluation_<?= $joueur['joueur_id'] ?>">
@@ -133,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <ul>
                 <?php foreach ($joueurs as $joueur): ?>
                     <?php if ($joueur['statut'] === 'remplacant'): ?>
-                        <li>
+                        <li class="joueur-evaluation">
                             <?= htmlspecialchars($joueur['nom'] . ' ' . $joueur['prenom'] . ' - ' . $joueur['poste_prefere']) ?>
                             <label for="evaluation_<?= $joueur['joueur_id'] ?>">Évaluation (1-5):</label>
                             <select name="evaluations[<?= $joueur['joueur_id'] ?>]" id="evaluation_<?= $joueur['joueur_id'] ?>">
@@ -147,7 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </ul>
 
             <button type="submit">Enregistrer les évaluations</button>
+            <div class="form-buttons">
             <a href="ListeMatch.php" class="button">Retour à la liste</a>
+            </div>
         </form>
     <?php endif; ?>
 </body>

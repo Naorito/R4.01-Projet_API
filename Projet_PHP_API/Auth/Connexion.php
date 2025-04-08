@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: ../frontend/ListeJoueur.php");
         exit;
     } else {
-        $erreur = $response['message'] ?? "Erreur inconnue.";
+        $erreur = "Nom d'utilisateur ou mot de passe incorrect";
     }
 }
 ?>
@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion</title>
-    <link rel="stylesheet" href="../frontend/CSS/connexion.css">
+    <link rel="stylesheet" href="../frontend/CSS/Connexion.css">
 </head>
 <body>
     <div class="form-container">

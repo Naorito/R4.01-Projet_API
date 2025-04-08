@@ -1,6 +1,8 @@
 <?php
 session_start(); // Démarrer la session
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
@@ -65,12 +67,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commentaires du joueur</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="CSS/Styles.css">
 </head>
 <body>
-    <!-- Le menu de navigation est inclus ici -->
-    <?php use CSS\header; ?>
-
     <h1>Commentaires du joueur</h1>
 
     <?php if (isset($message)): ?>

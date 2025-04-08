@@ -2,9 +2,18 @@
 
 session_start(); // Démarre la session
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
+    exit;
+}
+
+// Déconnexion
+if (isset($_GET['deconnexion'])) {
+    session_destroy(); // Détruire la session
+    header("Location: ../Auth/Connexion.php"); // Rediriger vers la page de connexion
     exit;
 }
 
@@ -49,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Créer un match</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="CSS/Styles.css">
 </head>
 <body>
     <h1>Créer un match</h1>

@@ -2,9 +2,18 @@
 
 session_start(); // Démarre la session
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php"); // Redirige vers la page de connexion si non connecté
+    exit;
+}
+
+// Déconnexion
+if (isset($_GET['deconnexion'])) {
+    session_destroy();
+    header("Location: ../Auth/Connexion.php");
     exit;
 }
 
@@ -76,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Modifier un joueur</title>
-    <link rel="stylesheet" href="/CSS/styles.css">
+    <link rel="stylesheet" href="CSS/Styles.css">
 </head>
 <body>
     <h1>Modifier un joueur</h1>

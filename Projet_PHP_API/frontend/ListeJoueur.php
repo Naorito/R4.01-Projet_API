@@ -2,6 +2,8 @@
 
 session_start(); // Démarrer la session
 
+require_once __DIR__ . '/CSS/header.php'; // Inclure le header
+
 // Vérifier si l'utilisateur est connecté et a un token
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['token'])) {
     header("Location: ../Auth/Connexion.php");
@@ -57,19 +59,10 @@ $joueurs = json_decode($response, true);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des joueurs</title>
-    <link rel="stylesheet" href="./CSS/ListeJoueur.css"> <!-- Lien vers le CSS -->
+    <link rel="stylesheet" href="CSS/Styles.css"> <!-- Lien vers le CSS -->
 </head>
 <body>
-    <!-- Bandeau de navigation -->
-    <header class="header">
-        <nav class="navbar">
-            <a href="ListeJoueur.php" class="btn btn-primary">Liste des joueurs</a>
-            <a href="ListeMatch.php" class="btn btn-primary">Liste des matchs</a>
-            <a href="Statistiques.php" class="btn btn-primary">Statistiques</a>
-            <a href="?deconnexion=1" class="btn btn-secondary">Se déconnecter</a>
-        </nav>
-    </header>
-
+    
     <!-- Conteneur principal -->
     <div class="container">
         <h1>Liste des joueurs</h1>
@@ -114,7 +107,7 @@ $joueurs = json_decode($response, true);
                             <td>
                                 <a href="ModifierJoueur.php?id=<?= urlencode($joueur['id']) ?>">Modifier</a>
                                 <a href="?supprimer=<?= $joueur['id'] ?>" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce joueur ?')">Supprimer</a>
-                                <a href="Commentaire.php?id=<?= urlencode($joueur['id']) ?>" class="btn btn-secondary">Commentaires</a>
+                                <a href="Commentaire.php?id=<?= urlencode($joueur['id']) ?>">Commentaires</a>
                             </td>
                         </tr>
                     <?php endforeach; ?>

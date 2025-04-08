@@ -55,15 +55,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'supprimer' && isset($_GET['id
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des matchs</title>
-    <link rel="stylesheet" href="CSS/styles.css">
+    <link rel="stylesheet" href="CSS/Styles.css">
 </head>
 <body>
     <h1>Liste des matchs</h1>
 
     <!-- Bouton pour ajouter un match -->
-    <div>
-        <a href="CreationMatch.php" class="btn btn-primary">Ajouter un match</a>
-    </div>
+<div class="action-buttons">
+    <a href="CreationMatch.php" class="btn btn-primary">Ajouter un match</a>
+</div>
 
     <?php if (isset($message)): ?>
         <p><?= htmlspecialchars($message) ?></p>
