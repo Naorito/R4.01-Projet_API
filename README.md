@@ -15,3 +15,6 @@ Il faut d'abord utiliser une méthode GET pour s'authentifier puis récupérer l
 
 Nom d'utilisateur : Joueur@gmail.com
 Mot de Passe : Password
+
+Un guide en Pdf est disponible pour comprendre comment tester les API sur Postman.
+On a mis une version en docx pour ceux qui veulent modifier et enrichir notre guide.
