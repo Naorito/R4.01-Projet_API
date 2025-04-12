@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'] ?? '';
     $password = $_POST['password'] ?? '';
 
-    $url = 'http://localhost/R4.01-Projet_API/Projet_PHP_API/Auth/ConnexionAPI.php'; // Remplacez par le chemin correct vers votre API
+    $url = 'http://naorito.alwaysdata.net/R4.01-Projet_API/Projet_PHP_API/Auth/ConnexionAPI.php'; // Remplacez par le chemin correct vers votre API
     $data = ['username' => $username, 'password' => $password];
 
     $options = [
